@@ -7,15 +7,46 @@
 // - Adding additional fields
 
 class Flashcard {
-  constructor(containerElement, frontText, backText) {
-    this.containerElement = containerElement;
+  // constructor(containerElement, frontText, backText) {
+  //   this.containerElement = containerElement;
+  constructor(frontText, backText) {
 
+    // attribute
+    this.result = "";
+    this.originX = null;
+    this.originY = null;
+    this.dragStart = false;
+    this.offsetX = 0;
+    this.offsetY = 0;
+
+    // bind function
     this._flipCard = this._flipCard.bind(this);
+    this.returnObject = this.returnObject.bind(this);
+    this.judge = this.judge.bind(this);
+    this._onDragStart = this._onDragStart.bind(this);
+    this._onDragMove = this._onDragMove.bind(this);
+    this._onDragEnd = this._onDragEnd.bind(this);
 
     this.flashcardElement = this._createFlashcardDOM(frontText, backText);
-    this.containerElement.append(this.flashcardElement);
+    // this.containerElement.append(this.flashcardElement);
+
 
     this.flashcardElement.addEventListener('pointerup', this._flipCard);
+    this.flashcardElement.addEventListener('pointerdown', this._onDragStart);
+    this.flashcardElement.addEventListener('pointermove', this._onDragMove);
+    this.flashcardElement.addEventListener('pointerup', this._onDragEnd);
+
+  }
+
+  returnObject() 
+  {
+    return this.flashcardElement;
+  }
+
+  judge() 
+  {
+    // ...
+    document.dispatchEvent(new CustomEvent('judgeAnswer', { detail: this.result }))
   }
 
   // Creates the DOM object representing a flashcard with the given
@@ -32,9 +63,9 @@ class Flashcard {
   // and returns a reference to the root of that snippet, i.e. the
   // <div class="flashcard-box">
   _createFlashcardDOM(frontText, backText) {
-    const cardContainer = document.createElement('div');
-    cardContainer.classList.add('flashcard-box');
-    cardContainer.classList.add('show-word');
+     this.cardContainer = document.createElement('div');
+    this.cardContainer.classList.add('flashcard-box');
+    this.cardContainer.classList.add('show-word');
 
     const wordSide = document.createElement('div');
     wordSide.classList.add('flashcard');
@@ -46,12 +77,50 @@ class Flashcard {
     definitionSide.classList.add('definition');
     definitionSide.textContent= backText;
 
-    cardContainer.appendChild(wordSide);
-    cardContainer.appendChild(definitionSide);
-    return cardContainer;
+    this.cardContainer.appendChild(wordSide);
+    this.cardContainer.appendChild(definitionSide);
+
+    return this.cardContainer;
   }
 
   _flipCard(event) {
     this.flashcardElement.classList.toggle('show-word');
+
   }
+
+  _onDragStart(event)
+  {
+    event.preventDefault();
+    console.log("onDragStart");
+    this.originX = event.clientX;
+    this.originY = event.clientY;
+    
+    this.dragStart = true;
+    
+  }
+
+  _onDragMove(event)
+  {
+    if(!this.dragStart)
+      return;
+
+    event.preventDefault();
+    
+    const deltaX = event.clientX - this.originX;
+    const deltaY = event.clientY - this.originY;
+    const translateX = this.offsetX + deltaX;
+    const translateY = this.offsetY + deltaY;
+
+    this.cardContainer.style.transform = 'translate(' + translateX + 'px,' + translateY + 'px)'+ 'rotate(' + 0.2 * translateX + 'deg)';
+  }
+
+  _onDragEnd(event)
+  {
+    this.dragStart = false;
+
+    this.offsetX += event.clientX - this.originX;
+    this.offsetY += event.clientY - this.originY;
+  }
+
+
 }

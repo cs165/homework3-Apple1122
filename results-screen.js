@@ -9,6 +9,11 @@
 class ResultsScreen {
   constructor(containerElement) {
     this.containerElement = containerElement;
+
+    // bind functions
+    this.show = this.show.bind(this);
+    this.hide = this.hide.bind(this);
+
   }
 
   show(numberCorrect, numberWrong) {
