@@ -91,7 +91,7 @@ class FlashcardScreen {
     
     if(this.doAgain)
     {
-      this.tempIndexList = this.incorrectList.slice();
+      this.tempIndexList = this.incorrectList.concat();
       console.log("this.tempIndexList: " + this.tempIndexList);
       this.incorrectList = [];
 
