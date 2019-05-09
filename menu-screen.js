@@ -9,6 +9,7 @@
 class MenuScreen {
   constructor(containerElement, flashcardShow) {
     this.containerElement = containerElement;
+    this.flashcardShow = flashcardShow;
 
     // bind function
     this.show = this.show.bind(this);
@@ -17,6 +18,7 @@ class MenuScreen {
     var choices = document.getElementById("choices");
 
     FLASHCARD_DECKS.forEach((index) => {
+
       const testOption = document.createElement('div');
       testOption.setAttribute('id', 'choices');
       testOption.innerHTML = index.title;
@@ -27,13 +29,16 @@ class MenuScreen {
         // connect to flashcard
         // console.log(flashcardShow);
         this.hide();
-        flashcardShow(index.words);
+        this.flashcardShow(index.words, this.show);
       });
     })
+    
   }
 
   show() {
     this.containerElement.classList.remove('inactive');
+
+    
   }
 
   hide() {

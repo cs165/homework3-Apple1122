@@ -18,6 +18,8 @@ class Flashcard {
     this.dragStart = false;
     this.offsetX = 0;
     this.offsetY = 0;
+    // this.frontText = frontText;
+    // this.backText = backText;
 
     // bind function
     this._flipCard = this._flipCard.bind(this);
@@ -30,16 +32,16 @@ class Flashcard {
     this.flashcardElement = this._createFlashcardDOM(frontText, backText);
     // this.containerElement.append(this.flashcardElement);
 
-
     this.flashcardElement.addEventListener('pointerup', this._flipCard);
     this.flashcardElement.addEventListener('pointerdown', this._onDragStart);
     this.flashcardElement.addEventListener('pointermove', this._onDragMove);
     this.flashcardElement.addEventListener('pointerup', this._onDragEnd);
-
   }
 
   returnObject() 
   {
+    // const temp = this.flashcardElement;
+    // return temp;
     return this.flashcardElement;
   }
 
@@ -80,18 +82,20 @@ class Flashcard {
     this.cardContainer.appendChild(wordSide);
     this.cardContainer.appendChild(definitionSide);
 
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+    this.position = this.cardContainer.getBoundingClientRect();
+
     return this.cardContainer;
   }
 
   _flipCard(event) {
     this.flashcardElement.classList.toggle('show-word');
-
   }
 
   _onDragStart(event)
   {
     event.preventDefault();
-    console.log("onDragStart");
+    // console.log("onDragStart");
     this.originX = event.clientX;
     this.originY = event.clientY;
     
@@ -112,14 +116,55 @@ class Flashcard {
     const translateY = this.offsetY + deltaY;
 
     this.cardContainer.style.transform = 'translate(' + translateX + 'px,' + translateY + 'px)'+ 'rotate(' + 0.2 * translateX + 'deg)';
+
+    if(Math.abs(deltaX) >= 150)
+    {
+      document.body.style.backgroundColor = "#97b7b7";
+
+    }
+    else
+    {
+      document.body.style.backgroundColor = "#d0e6df";
+    }
   }
 
   _onDragEnd(event)
   {
     this.dragStart = false;
-
     this.offsetX += event.clientX - this.originX;
     this.offsetY += event.clientY - this.originY;
+    const deltaX = event.clientX - this.originX;
+
+    if(deltaX  >= 150)
+    {
+      this.result = "correct";
+      document.dispatchEvent(new CustomEvent('judgeAnswer', { detail: this.result }))
+      // console.log("judgeAnswer");
+      document.body.style.backgroundColor = "#d0e6df";
+      this.cardContainer.style.transform = 'translate(' + this.position.left + 'px,' + this.position.top + 'px)';
+
+      this.offsetX = 0;
+      this.offsetY = 0;
+    }
+    else if(deltaX  <= -150)
+    {
+      this.result = "incorrect";
+      document.dispatchEvent(new CustomEvent('judgeAnswer', { detail: this.result }))
+      // console.log("judgeAnswer");
+      document.body.style.backgroundColor = "#d0e6df";
+      this.cardContainer.style.transform = 'translate(' + this.position.left + 'px,' + this.position.top + 'px)';
+
+      this.offsetX = 0;
+      this.offsetY = 0;
+    }
+    else
+    {
+      document.body.style.backgroundColor = "#d0e6df";
+      this.cardContainer.style.transform = 'translate(' + this.position.left + 'px,' + this.position.top + 'px)';
+      this.offsetX = 0;
+      this.offsetY = 0;
+    }
+
   }
 
 

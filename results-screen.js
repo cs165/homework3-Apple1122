@@ -16,8 +16,40 @@ class ResultsScreen {
 
   }
 
-  show(numberCorrect, numberWrong) {
+  show(numberCorrect, numberIncorrect, menuShow, flashScreenShow) {
     this.containerElement.classList.remove('inactive');
+
+    const buttonContinue = this.containerElement.querySelector(".continue");
+    const buttonMenu = this.containerElement.querySelector(".to-menu");
+    
+    this.containerElement.querySelector(".percent").innerHTML = Math.round(numberCorrect / (numberCorrect + numberIncorrect)* 100);
+    this.containerElement.querySelector(".correct").innerHTML = numberCorrect + " ";
+    this.containerElement.querySelector(".incorrect").innerHTML = numberIncorrect + " ";
+
+    if(numberIncorrect == 0)
+    {
+      buttonContinue.innerHTML = "Start Over?";
+      buttonContinue.addEventListener('click', () => {
+        window.scrollTo(0, 0);
+        window.location.reload();
+      });
+    }
+    else
+    {
+      buttonContinue.innerHTML = "Continue";
+      buttonContinue.addEventListener('click', () => {
+        this.hide();
+        // if(numberIncorrect != 0)
+        flashScreenShow(null, menuShow);
+      })
+    }
+
+    buttonMenu.innerHTML = "Back to menu";
+    buttonMenu.addEventListener('click', (event) => {
+      window.scrollTo(0, 0);
+      window.location.reload();
+    })
+
   }
 
   hide() {
